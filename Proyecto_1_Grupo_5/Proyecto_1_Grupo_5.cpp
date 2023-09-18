@@ -53,6 +53,8 @@ string ajustarFecha(string s) {
 	return temp;
 }
 
+
+
 int main()
 {
 	vector<Alumno*> alumnos;
@@ -66,20 +68,45 @@ int main()
 			fstream file;
 			file.open(directory, ios::in);
 			if (file.eof()) {
-				ajustarFecha(fecha);
 				if (empezo) break;
 			}
 			else {
 				empezo = true;
 				string linea;
-
+				string nom = "";
+				bool audio = true;
 				cout << "*REVISANDO EL ARCHIVO:" << endl;
+				//AQUI VA LO DEL ABSOLUTE PATH
+				file.seekg(0);
+				cout << directory;
 				while (getline(file, linea)) {
 					if (((int)linea.at(0) >= 48 && (int)linea.at(0) <= 57) || linea.at(0) == ' ') {
 						cout << "I";
 					}
+					for (int i = 0; i < linea.length(); i++) {
+						if (linea.at(i) != ' ') {
+							nom += linea.at(i);
+						}
+						else {
+							cout << "[" + nom + "]";
+							for (int j = i; j < linea.length(); j++) {
+								if (linea.at(i) != '-') {
+									audio = false;
+									break;
+								}
+								audio = true;
+							}
+							if (!encontrarAlumno(alumnos, nom)) {
+								Alumno* a = new Alumno(nom);
+								a->addAudio(audio);
+								alumnos.push_back(a);
+							}
+							break;
+						}
+					}
 				}
 			}
+			ajustarFecha(fecha);
 			file.close();
 		}
 	}
