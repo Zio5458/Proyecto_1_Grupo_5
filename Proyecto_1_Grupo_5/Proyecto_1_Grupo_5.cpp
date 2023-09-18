@@ -1,12 +1,18 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <filesystem>
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING 1
+#include <experimental/filesystem>
+
 #include "Alumno.h"
+
 using namespace std;
 
-bool encontrarAlumno(vector<Alumno*> &a, string nombre) {
-	for (int i = 0; i < a.size(); i++) 
+namespace fs = std::experimental::filesystem;
+
+bool encontrarAlumno(vector<Alumno*>& a, string nombre) {
+	for (int i = 0; i < a.size(); i++)
 		if (a[i]->getNombre() == nombre) return true;
 	return false;
 }
@@ -57,17 +63,23 @@ string ajustarFecha(string s) {
 
 int main()
 {
+
 	vector<Alumno*> alumnos;
 	string semana;
-	string fecha = "2022-07-20";
+	string base = "Contenido del Curso";
+	string fecha = "2021-07-20";
+
+
 	for (int i = 1; i <= 5; i++) {
 		semana = "Semana 0" + to_string(i);
 		bool empezo = false;
-		while (true) {
-			string directory = semana + "/" + fecha + ".txt";
-			fstream file;
-			file.open(directory, ios::in);
-			if (file.eof()) {
+		while (i == 1) {
+			i++;
+			string directory = base + "/" + semana + "/" + fecha + ".txt";
+			fstream* file = new fstream(directory, ios::in);
+
+			if (file->is_open()) cout << "Samuel sos un caregei\n";
+			if (!file) {
 				if (empezo) break;
 			}
 			else {
@@ -76,11 +88,19 @@ int main()
 				string nom = "";
 				bool audio = true;
 				cout << "*REVISANDO EL ARCHIVO:" << endl;
-				//AQUI VA LO DEL ABSOLUTE PATH
-				file.seekg(0);
-				cout << directory;
-				while (getline(file, linea)) {
-					if (((int)linea.at(0) >= 48 && (int)linea.at(0) <= 57) || linea.at(0) == ' ') {
+				std::experimental::filesystem::path fs = directory;
+				cout << std::experimental::filesystem::absolute(fs) << "\n";
+
+				file->seekg(0);
+
+				cout << "impresion\n";
+
+				while (getline(*file, linea)) {
+
+
+					cout << linea << "\n";
+
+					/*if (((int)linea.at(0) >= 48 && (int)linea.at(0) <= 57) || linea.at(0) == ' ') {
 						cout << "I";
 					}
 					for (int i = 0; i < linea.length(); i++) {
@@ -103,11 +123,12 @@ int main()
 							}
 							break;
 						}
-					}
+					}*/
 				}
 			}
 			ajustarFecha(fecha);
-			file.close();
+			file->close();
+			delete file;
 		}
 	}
 }
