@@ -1,6 +1,10 @@
 #include "Alumno.h"
+#include <iostream>
 Alumno::Alumno(string nombre) {
 	this->nombre = nombre;
+	this->audio = 0;
+	this->no_audio = 0;
+	this->asistencias = 0;
 }
 string Alumno::getNombre() {
 	return this->nombre;

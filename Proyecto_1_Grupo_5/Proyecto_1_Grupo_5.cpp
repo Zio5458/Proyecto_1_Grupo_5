@@ -4,12 +4,12 @@
 #include <fstream>
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING 1
 #include <experimental/filesystem>
-
+#include <iomanip>
 #include "Alumno.h"
-
 using namespace std;
-
 namespace fs = std::experimental::filesystem;
+
+bool compararAlumno(Alumno* a, Alumno* b) { return a->getAudio() < b->getAudio(); }
 
 bool encontrarAlumno(vector<Alumno*>& a, string nombre) {
 	for (int i = 0; i < a.size(); i++)
@@ -68,7 +68,6 @@ int main() {
 	string base = "Contenido del Curso";
 	string fecha = "2021-07-20";
 	int vueltas = 1;
-
 	for (int i = 1; i <= 5; i++) {
 		semana = "Semana 0" + to_string(i);
 		bool empezo = false;
@@ -86,7 +85,7 @@ int main() {
 			fecha = "2021-08-10";
 			break;
 		case 5:
-			fecha = "2021-07-16";
+			fecha = "2021-08-16";
 			break;
 
 		}
@@ -95,21 +94,16 @@ int main() {
 		fstream* file = new fstream(directory, ios::in);
 
 		std::experimental::filesystem::path fs = directory;
-		int count{ };
+		int count = 0;
 		std::experimental::filesystem::path p1 = fs.parent_path();
 		for (auto& p : std::experimental::filesystem::directory_iterator(p1))
 		{
 			++count;
 		}
-
-		std::cout << "# of files in " << p1 << ": " << count << '\n';
-
 		while (vueltas <= count) {
 			vueltas++;
 			directory = base + "/" + semana + "/" + fecha + ".txt";
 			file = new fstream(directory, ios::in);
-
-			if (file->is_open()) cout << "Samuel sos un caregei\n";
 			if (!file) {
 				if (empezo) break;
 			}
@@ -118,20 +112,15 @@ int main() {
 				string linea;
 				string nom = "";
 				bool audio = true;
-				cout << "*REVISANDO EL ARCHIVO:" << endl;
-				
+				cout << "*REVISANDO EL ARCHIVO: ";
 				cout << experimental::filesystem::absolute(fs) << "\n";
-				
-
 				cout << endl << "	";
 				file->seekg(0);
-
 				//cout << "impresion\n";
 				string lineaVacia = "";
 				string fechaComparar = fecha + ":";
 				string nombre = ""; bool verificar = true; //si la variable verificar es true, se crea un alumno, a lo contrario, solo se actualiza;
 				size_t find; //usada para el String::find()
-
 
 				while (getline(*file, linea)) {
 					verificar = true;
@@ -140,26 +129,9 @@ int main() {
 						//este for es para actualizar o crear un alumno en el vector
 						for (int j = 0; j < linea.size(); j++) {
 							if (linea.at(j) == ' ') {
-								//for (Alumno* alu : alumnos) {
-								//	if (alu->getNombre() == nombre) { //si encuentra el nombre en el vector, solo se va a actualizar
-								//		verificar = false;
-								//		if (linea.at(j + 1) == '-') {
-								//			alu->addAudio(false); 
-								//			cout << " si audio ";
-								//		}
-								//		else {
-								//			alu->addAudio(true); 
-								//			cout << " no audio ";
-								//		}
-								//		nombre = "";
-								//	}
-								//	
-								//}
-								
 								break;
 							}
 							else {
-								
 								nombre += linea.at(j);
 								if (nombre.size() == linea.size() || linea.at(j + 1) == ' ') {
 									for (Alumno* alu : alumnos) {
@@ -168,10 +140,10 @@ int main() {
 
 											find = linea.find("NO_AUDIO");
 											if (find != string::npos) {
-												alu->addAudio(true);
+												alu->addAudio(false);
 											}
 											else {
-												alu->addAudio(false);
+												alu->addAudio(true);
 											}
 											cout << "[" << nombre << "][A]FU, ";
 											nombre = "";
@@ -179,52 +151,29 @@ int main() {
 										}
 									}
 								}
-								
+
 							}
 						}
 						if (verificar) { //agrega el estudiante si no esta en el vector
-							cout << "[" << nombre << "][A] NC, ";
-							
-							Alumno* a = new Alumno(nombre);
-							nombre = "";
-							find = linea.find("NO_AUDIO");
-							if (find == string::npos) { a->addAudio(true); }
-							else { a->addAudio(false); }
-							
-							alumnos.push_back(a);
-						}
-
-						//cout << linea << endl;
-						
-
-
-
-						/*if (((int)linea.at(0) >= 48 && (int)linea.at(0) <= 57) || linea.at(0) == ' ') {
-							cout << "I";
-						}
-						for (int i = 0; i < linea.length(); i++) {
-							if (linea.at(i) != ' ') {
-								nom += linea.at(i);
+							if (nombre == "EXAMEN" || nombre == "ASISTIERON TODOS" || nombre == "EXAMENASISTIERON") {
+								cout << "I";
 							}
 							else {
-								cout << "[" + nom + "]";
-								for (int j = i; j < linea.length(); j++) {
-									if (linea.at(i) != '-') {
-										audio = false;
-										break;
-									}
-									audio = true;
-								}
-								if (!encontrarAlumno(alumnos, nom)) {
-									Alumno* a = new Alumno(nom);
-									a->addAudio(audio);
-									alumnos.push_back(a);
-								}
-								break;
+								cout << "[" << nombre << "][A] NC, ";
+
+								Alumno* a = new Alumno(nombre);
+								nombre = "";
+								find = linea.find("NO_AUDIO");
+								if (find == string::npos) { a->addAudio(true); }
+								else { a->addAudio(true); }
+
+								alumnos.push_back(a);
 							}
-						}*/
+
+						}
+
 					}
-					
+
 				}
 				cout << endl << endl;
 				cout << lineaVacia;
@@ -233,5 +182,23 @@ int main() {
 				delete file;
 			}
 		}
+	}//fin for
+	cout << "*LISTADO:" << endl;
+	cout << "=========" << endl;
+	cout << setw(16) << "ALUMNO" << setw(8) << "AUDIO " << "NO-AUDIO " << "ASISTENCIAS " << "PORCENTAJE" << endl;
+	cout << setw(16) << "------" << setw(8) << "----- " << "-------- " << "----------- " << "----------" << endl;
+	for (int i = 0; i < alumnos.size(); i++) {
+		for (int j = 0; j < alumnos.size() - 1; j++) {
+			if (compararAlumno(alumnos[j], alumnos[j + 1])) {
+				Alumno* temp = alumnos[j];
+				alumnos[j] = alumnos[j + 1];
+				alumnos[j + 1] = temp;
+			}
+		}
+	}//ordenamiento del vector en base a la variable audio
+	for (int i = 0; i < alumnos.size(); i++) {
+		cout << fixed << setprecision(2);
+		double porcentaje = (static_cast<double>(alumnos[i]->getAudio()) / alumnos[i]->getAsistencias()) * 100;
+		cout << setw(16) << alumnos[i]->getNombre() << setw(8) << alumnos[i]->getAudio() << setw(8) << alumnos[i]->getNoAudio() << setw(12) << alumnos[i]->getAsistencias() << setw(10) << porcentaje << "%" << endl;
 	}
 }
